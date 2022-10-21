@@ -44,13 +44,14 @@
 
 #ifdef WIN32
 #include <windows.h>
+#define strncasecmp _strnicmp
 #else
 #include <pthread.h>
 #endif
 
 #include <libideviceactivation.h>
 
-#define IDEVICE_ACTIVATION_USER_AGENT_IOS "iOS Device Activator (MobileActivation-20 built on Jan 15 2012 at 19:07:28)"
+#define IDEVICE_ACTIVATION_USER_AGENT_IOS "iOS Device Activator (MobileActivation-592.103.2)"
 #define IDEVICE_ACTIVATION_USER_AGENT_ITUNES "iTunes/11.1.4 (Macintosh; OS X 10.9.1) AppleWebKit/537.73.11"
 #define IDEVICE_ACTIVATION_DEFAULT_URL "https://albert.apple.com/deviceservices/deviceActivation"
 #define IDEVICE_ACTIVATION_DRM_HANDSHAKE_DEFAULT_URL "https://albert.apple.com/deviceservices/drmHandshake"
@@ -101,7 +102,6 @@ static void internal_libideviceactivation_deinit(void)
 }
 
 #ifdef WIN32
-
 typedef volatile struct {
     LONG lock;
     int state;
@@ -121,7 +121,29 @@ static void thread_once(thread_once_t *once_control, void (*init_routine)(void))
     }
     InterlockedExchange(&(once_control->lock), 0);
 }
+#else
+static pthread_once_t init_once = PTHREAD_ONCE_INIT;
+static pthread_once_t deinit_once = PTHREAD_ONCE_INIT;
+#define thread_once pthread_once
+#endif
 
+#ifndef HAVE_ATTRIBUTE_CONSTRUCTOR
+  #if defined(__llvm__) || defined(__GNUC__)
+    #define HAVE_ATTRIBUTE_CONSTRUCTOR
+  #endif
+#endif
+
+#ifdef HAVE_ATTRIBUTE_CONSTRUCTOR
+static void __attribute__((constructor)) libideviceactivation_initialize(void)
+{
+    thread_once(&init_once, internal_libideviceactivation_init);
+}
+
+static void __attribute__((destructor)) libideviceactivation_deinitialize(void)
+{
+    thread_once(&deinit_once, internal_libideviceactivation_deinit);
+}
+#elif defined(WIN32)
 BOOL WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, LPVOID lpReserved)
 {
     switch (dwReason) {
@@ -136,24 +158,9 @@ BOOL WINAPI DllMain(HINSTANCE hModule, DWORD dwReason, LPVOID lpReserved)
     }
     return 1;
 }
-
 #else
-
-static pthread_once_t init_once = PTHREAD_ONCE_INIT;
-static pthread_once_t deinit_once = PTHREAD_ONCE_INIT;
-
-static void __attribute__((constructor)) libideviceactivation_initialize(void)
-{
-    pthread_once(&init_once, internal_libideviceactivation_init);
-}
-
-static void __attribute__((destructor)) libideviceactivation_deinitialize(void)
-{
-    pthread_once(&deinit_once, internal_libideviceactivation_deinit);
-}
-
+#warning No compiler support for constructor/destructor attributes, some features might not be available.
 #endif
-
 
 static int debug_level = 0;
 
@@ -596,14 +603,14 @@ static size_t idevice_activation_header_callback(void *data, size_t size, size_t
 			}
 		}
 		if (value) {
-			if (strcmp(header, "Content-Type") == 0) {
-				if (strcmp(value, "text/xml") == 0) {
+			if (strncasecmp(header, "Content-Type", 12) == 0) {
+				if (strncasecmp(value, "text/xml", 8) == 0) {
 					response->content_type = IDEVICE_ACTIVATION_CONTENT_TYPE_PLIST;
-				} else if (strcmp(value, "application/xml") == 0) {
+				} else if (strncasecmp(value, "application/xml", 15) == 0) {
 					response->content_type = IDEVICE_ACTIVATION_CONTENT_TYPE_PLIST;
-				} else if (strcmp(value, "application/x-buddyml") == 0) {
+				} else if (strncasecmp(value, "application/x-buddyml", 21) == 0) {
 					response->content_type = IDEVICE_ACTIVATION_CONTENT_TYPE_BUDDYML;
-				} else if (strcmp(value, "text/html") == 0) {
+				} else if (strncasecmp(value, "text/html", 9) == 0) {
 					response->content_type = IDEVICE_ACTIVATION_CONTENT_TYPE_HTML;
 				}
 			}

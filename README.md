@@ -2,6 +2,8 @@
 
 *A library to manage the activation process of Apple iOS devices.*
 
+![](https://github.com/libimobiledevice/libideviceactivation/actions/workflows/build.yml/badge.svg)
+
 ## Features
 
 This project provides an interface to activate and deactivate iOS devices by
@@ -24,6 +26,7 @@ First install all required dependencies and build tools:
 ```shell
 sudo apt-get install \
 	build-essential \
+	pkg-config \
 	checkinstall \
 	git \
 	autoconf \
@@ -81,7 +84,7 @@ ticket first to discuss the idea upfront to ensure less effort for everyone.
 
 Please make sure your contribution adheres to:
 * Try to follow the code style of the project
-* Commit messages should describe the change well without being to short
+* Commit messages should describe the change well without being too short
 * Try to split larger changes into individual commits of a common domain
 * Use your real name and a valid email address for your commits
 
@@ -115,4 +118,4 @@ iPadOS, tvOS, watchOS, and macOS are trademarks of Apple Inc.
 This project is an independent software library and has not been authorized,
 sponsored, or otherwise approved by Apple Inc.
 
-README Updated on: 2020-06-13
+README Updated on: 2022-04-04
