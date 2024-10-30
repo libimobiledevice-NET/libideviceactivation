@@ -31,9 +31,9 @@
  // other definitions from config.h. We can't reference config.h from public headers.
  // See https://gcc.gnu.org/wiki/Visibility for some details on this syntax
 #ifdef _MSC_VER
-#define IDEVICE_ACTIVATION_API_MSC __declspec( dllexport )
+	#define IDEVICE_ACTIVATION_API_MSC __declspec( dllexport )
 #else 
-#define IDEVICE_ACTIVATION_API_MSC __attribute__ ((visibility ("default"))) 
+	#define IDEVICE_ACTIVATION_API_MSC __attribute__ ((visibility ("default"))) 
 #endif
 
 #ifdef __cplusplus
