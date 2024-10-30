@@ -1,8 +1,8 @@
 #                                               -*- Autoconf -*-
 # Process this file with autoconf to produce a configure script.
 
-AC_PREREQ(2.68)
-AC_INIT([libideviceactivation], [1.1.2], [https://github.com/libimobiledevice/libideviceactivation/issues],, [https://libimobiledevice.org])
+AC_PREREQ([2.68])
+AC_INIT([libideviceactivation], [m4_esyscmd(./git-version-gen $RELEASE_VERSION)], [https://github.com/libimobiledevice/libideviceactivation/issues], [], [https://libimobiledevice.org])
 AM_INIT_AUTOMAKE([dist-bzip2 no-dist-gzip check-news])
 m4_ifdef([AM_SILENT_RULES], [AM_SILENT_RULES])
 AC_CONFIG_SRCDIR([src/])
@@ -61,6 +61,7 @@ case ${host_os} in
   *mingw32*|*cygwin*)
     AC_MSG_RESULT([${host_os}])
     win32=true
+    deplibs_check_method='pass_all'
     ;;
   darwin*|*android*)
     AC_MSG_RESULT([${host_os}])
