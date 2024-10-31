@@ -30,6 +30,8 @@
 #include <string.h>
 #ifndef _MSC_VER
 	#include <unistd.h>
+#else
+	#include <io.h>
 #endif
 #include <ctype.h>
 #ifndef WIN32
